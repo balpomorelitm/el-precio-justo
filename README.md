@@ -5,7 +5,7 @@ Una página para dirigir en clase una partida por equipos, inspirada en el concu
 ## Jugar
 
 1. Escribe los nombres de los equipos. Antes de empezar puedes revisar y editar los precios y el cambio EUR/HKD en «Productos y precios».
-2. Introduce las propuestas en euros. Pulsa «Revelar el precio» para ver el resultado y la clasificación. Un campo vacío significa que el equipo no participa en esa ronda.
+2. Introduce las propuestas en euros siguiendo el orden indicado. En cada ronda empieza el siguiente equipo, y el primero de la ronda anterior pasa al final. Pulsa «Revelar el precio» para ver el resultado y la clasificación. Un campo vacío significa que el equipo no participa en esa ronda.
 3. Al resolver la quinta ronda puedes terminar la partida o añadir preguntas extra. Los extras se colocan después de los seis productos iniciales.
 4. En cualquier ronda revelada puedes corregir una propuesta: el marcador se recalcula automáticamente. Al terminar, descarga el resumen en CSV.
 

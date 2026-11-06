@@ -1,6 +1,28 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseMoney, scoreRound, createGame, getStandings, appendExtra, validateGame } from '../engine.js';
+import { parseMoney, scoreRound, createGame, getStandings, appendExtra, validateGame, turnOrder } from '../engine.js';
+
+test('turn order rotates each round, wraps for extras and leaves team identities unchanged', () => {
+  const teams = [{ id: 'a', name: 'A' }, { id: 'b', name: 'B' }, { id: 'c', name: 'C' }];
+  const original = structuredClone(teams);
+  assert.deepEqual(turnOrder(teams, 0).map((team) => team.id), ['a', 'b', 'c']);
+  assert.deepEqual(turnOrder(teams, 1).map((team) => team.id), ['b', 'c', 'a']);
+  assert.deepEqual(turnOrder(teams, 2).map((team) => team.id), ['c', 'a', 'b']);
+  assert.deepEqual(turnOrder(teams, 3).map((team) => team.id), ['a', 'b', 'c']);
+  assert.deepEqual(turnOrder(teams, 7).map((team) => team.id), ['b', 'c', 'a']);
+  assert.deepEqual(turnOrder(teams, 1).map((team) => team.id), ['b', 'c', 'a']);
+  assert.deepEqual(teams, original);
+  assert.notEqual(turnOrder(teams, 0), teams);
+  assert.equal(turnOrder(teams, 1)[0], teams[1]);
+});
+
+test('turn order supports different team counts and rejects invalid round indexes', () => {
+  assert.deepEqual(turnOrder([], 0), []);
+  assert.deepEqual(turnOrder(['one'], 20), ['one']);
+  assert.deepEqual(turnOrder(['a', 'b'], 5), ['b', 'a']);
+  assert.deepEqual(turnOrder(['a', 'b', 'c', 'd'], 6), ['c', 'd', 'a', 'b']);
+  for (const round of [-1, 1.5, NaN, Infinity, '1']) assert.throws(() => turnOrder(['a'], round));
+});
 
 const makeCatalog = () => [
   { id: 'milk', name: 'Leche', priceCents: 110, required: true, source: { shop: 'Supermercado' } },

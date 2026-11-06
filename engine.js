@@ -4,6 +4,16 @@ const isMoney = (value) => Number.isSafeInteger(value) && value >= 0;
 const isDate = (value) => typeof value === 'string' && !Number.isNaN(Date.parse(value));
 const clone = (value) => structuredClone(value);
 
+/** Keep team identities fixed while rotating who answers first in each round. */
+export function turnOrder(teams, roundIndex) {
+  if (!Array.isArray(teams) || !Number.isSafeInteger(roundIndex) || roundIndex < 0) {
+    throw new Error('El orden de turno no es válido.');
+  }
+  if (!teams.length) return [];
+  const offset = roundIndex % teams.length;
+  return [...teams.slice(offset), ...teams.slice(0, offset)];
+}
+
 /** Read a Spanish price (or a price with a decimal point) into integer cents. */
 export function parseMoney(text) {
   if (typeof text !== 'string') throw new Error('Introduce un precio válido.');
