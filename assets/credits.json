@@ -1,0 +1,58 @@
+[
+  {
+    "file": "show-archive.jpg",
+    "sourceURL": "https://www.rtve.es/play/videos/el-precio-justo/",
+    "imageURL": "https://img.rtve.es/v/3231408/?w=1200",
+    "note": "Imagen del archivo de RTVE; no se ha confirmado la fecha de esta fotografía"
+  },
+  {
+    "file": "salmon.jpg",
+    "sourceURL": "SesiÃ³n 6_Unidad 4.pdf",
+    "imageURL": "pdf:page=14;xref=66",
+    "note": "Foto de salmÃ³n recortada de captura docente, sin precio ni interfaz comercial"
+  },
+  {
+    "file": "mug.jpg",
+    "sourceURL": "https://www.ikea.com/es/es/p/ikea-365-taza-blanco-80278367/",
+    "imageURL": "https://www.ikea.com/es/es/images/products/ikea-365-taza-blanco__0711130_pe727998_s5.jpg"
+  },
+  {
+    "file": "ball.jpg",
+    "sourceURL": "https://www.decathlon.es/es/p/balon-de-futbol-cosido-a-maquina-training-ball-talla-5-blanco/331004/c227m8789910",
+    "imageURL": "https://contents.mediadecathlon.com/p3159888/k%2477c220e6380d5debbced85a644be8580/picture.jpg?f=1000x0"
+  },
+  {
+    "file": "dress.jpg",
+    "sourceURL": "https://www.zara.com/es/es/vestido-midi-lunares-zw-collection-p02828209.html",
+    "imageURL": "https://static.zara.net/assets/public/8b8f/8534/f1a5432db31a/f6172ff243b8/02828209093-p/02828209093-p.jpg?w=1000"
+  },
+  {
+    "file": "bag.jpg",
+    "sourceURL": "https://shop.mango.com/es/es/p/mujer/bolsos/bolsos-de-piel/bolso-shopper-piel-charm-espejo/37036007/99/00",
+    "imageURL": "https://media.mango.com/is/image/punto/37036007-99-052?wid=1000"
+  },
+  {
+    "file": "boots.jpg",
+    "sourceURL": "https://www.camper.com/es_ES/mujer/zapatos/brown-boots",
+    "imageURL": "https://cloud.camper.com/is/image/JGVzaG9wMDNiYWdncmV5JA%3D%3D/K400816-002_L.jpg?wid=1000&hei=1000",
+    "note": "Foto oficial de Camper Brutus+ K400816-002"
+  },
+  {
+    "file": "coffee.jpg",
+    "sourceURL": "https://images.unsplash.com/photo-1509042239860-f550ce710b93",
+    "imageURL": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1000&q=85&fit=crop",
+    "note": "Foto genérica de café; no tomada en Oxford Palencia"
+  },
+  {
+    "file": "ps5.jpg",
+    "sourceURL": "https://www.playstation.com/es-es/ps5/1-tb-disc/",
+    "imageURL": "https://gmedia.playstation.com/is/image/SIEPDC/PS5Console-CFI2100-01-16x9-01-28feb26%24en?%241600px--t%24",
+    "note": "Foto oficial de PS5 Slim con lector, grupo CFI-2100"
+  },
+  {
+    "file": "house.svg",
+    "sourceURL": "https://www.idealista.com/inmueble/112652256/",
+    "imageURL": null,
+    "note": "Ilustración local orientativa, no fotografía del inmueble. La página del anuncio bloquea el acceso."
+  }
+]

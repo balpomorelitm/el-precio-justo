@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.netlify/
+.vscode/
+tmp/
+*.pdf
+*.zip
+*.log

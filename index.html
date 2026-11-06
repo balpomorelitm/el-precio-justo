@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102f42">
+  <meta name="description" content="El concurso de siempre, en tu clase. Seis productos, apuestas por equipos y un solo objetivo: acercarse sin pasarse.">
+  <title>El Precio Justo · ¡A jugar!</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="El Precio Justo, inicio"><span class="brand-icon" aria-hidden="true">€</span><span>EL PRECIO <strong>JUSTO</strong><small>EDICIÓN AULA</small></span></a>
+    <nav class="tools" aria-label="Controles del concurso">
+      <button class="tool" id="sound-toggle" type="button" aria-label="Silenciar sonido" title="Silenciar sonido"></button>
+      <label class="volume-control"><span class="sr-only">Volumen de efectos</span><input id="volume" type="range" min="0" max="100" value="45" aria-label="Volumen de efectos"></label>
+      <button class="tool" id="motion-toggle" type="button" aria-label="Reducir animaciones" title="Reducir animaciones"></button>
+      <button class="tool" id="fullscreen-toggle" type="button" aria-label="Pantalla completa" title="Pantalla completa"></button>
+      <button class="tool help-tool" id="help-toggle" type="button" aria-label="Cómo se juega" title="Cómo se juega">?</button>
+    </nav>
+  </header>
+  <main id="app"></main>
+  <footer class="site-footer"><span>Un clásico de la tele. Una partida en clase.</span><span id="save-status" role="status">Hecho para jugar juntos</span></footer>
+  <div id="announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <div id="confetti" class="confetti" aria-hidden="true"></div>
+  <dialog id="modal" aria-labelledby="modal-title"><div id="modal-content"></div></dialog>
+</body>
+</html>
