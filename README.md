@@ -2,6 +2,8 @@
 
 A page for teachers to run a classroom game in teams, inspired by the classic TV show. Product descriptions and the guessing question remain in Spanish for language practice; instructions are in English.
 
+Before the game, project the [English rules poster](assets/instrucciones-ingles.png).
+
 ## How to play
 
 1. Enter at least two different team names. Before starting, use «Productos y precios» to review or edit the prices and the EUR/HKD exchange rate.
