@@ -10,9 +10,9 @@ Before the game, project the [English rules poster](assets/instrucciones-ingles.
 2. Collect guesses in euros, following the displayed turn order. A different team goes first each round: the previous first team moves to the end. Select «Revelar el precio» to reveal the price and scores. A blank field means that the team is not taking part in that round.
 3. The closest guess without going over wins one point. Tied winners share that point. Each exact guess earns one additional bonus point.
 4. You can finish after the third revealed round. From the fifth revealed round, you can add extras; these follow the six main products without repeating.
-5. You can edit guesses in any revealed round; scores update automatically. At the end, download the results as a CSV file.
+5. You can edit guesses in any revealed round; scores update automatically. At the end, review the final scores on screen.
 
-The game and custom prices are saved locally in that browser and device. Reopen the page to continue. «Nueva partida» lets you download the previous results before starting again. The teacher’s operating buttons remain in Spanish.
+The game and custom prices are saved locally in that browser and device. Reopen the page to continue. «Nueva partida» asks you to confirm before replacing the current game. The teacher’s operating buttons remain in Spanish.
 
 ## Development
 
