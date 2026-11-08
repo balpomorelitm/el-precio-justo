@@ -22,6 +22,40 @@ body.reduced-motion *,body.reduced-motion *::before,body.reduced-motion *::after
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.confetti{display:none}}
 @media print{body{color:#102f42;background:white}.topbar,.site-footer,.tools,.ambient,.round-actions,.extra-actions,.final-actions,.confetti{display:none}.final-stage,.score-card{border-color:#aaa;color:#102f42;background:white}.winner-name,.score-value{color:#102f42}.summary-table td,.summary-table th{color:#102f42;border-color:#ccc}#app{padding:0;min-height:auto}}
 
+/* The chalet photo and the supplied map are visible together in its round. */
+.house-map{margin:12px 20px 0;padding:5px;background:#fff;border:2px solid #e2d0de;border-radius:10px;color:#302069}
+.house-map img{width:100%;height:128px;object-fit:contain;background:#f1f3ed;border-radius:5px}
+.house-map figcaption{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 6px 3px;font-size:11px;font-weight:700}
+.house-map button{border:0;background:none;color:#8c1b68;font:inherit;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+.house-map-large{width:100%;height:auto;margin:18px 0;border:2px solid #e6d0cf;border-radius:10px}
+@media(max-width:700px){.product-panel:has(.house-map){grid-template-columns:minmax(0,1fr)}.product-panel:has(.house-map) .product-visual{height:220px}.product-panel:has(.house-map) .product-info{padding:18px 20px 22px}.house-map{margin:6px 15px 0}.house-map img{height:auto;max-height:150px}}
+
+/* A gloriously over-the-top opening number for a new game. */
+.start-show{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;overflow:hidden;isolation:isolate;padding:20px;color:#fff8ed;background:radial-gradient(ellipse at center,#fa599e 0%,#b627b7 42%,#3524a9 100%)}
+.start-show::before{content:'';position:absolute;z-index:-2;inset:-80%;background:repeating-conic-gradient(from 0deg,#ffda5d55 0deg 9deg,transparent 9deg 24deg);animation:show-rays 28s linear infinite}
+.start-show::after{content:'';position:absolute;z-index:-1;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,transparent 25%,#211265b8 100%)}
+.start-show__stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:min(780px,100%);max-height:100%;text-align:center;animation:show-arrive .7s cubic-bezier(.17,.8,.23,1.2) both}
+.start-show__eyebrow{margin:0;color:#fff0a5;font-size:clamp(10px,1.6vw,16px);font-weight:900;letter-spacing:.22em;text-shadow:0 2px 0 #a42c79}
+.start-show__frame{position:relative;width:min(590px,80vw,57vh * 1.78);padding:8px;border:5px solid #fff4b2;border-radius:20px;background:linear-gradient(120deg,#ff4c96,#ffbd3c,#80e7e3,#ff4c96);box-shadow:0 0 0 5px #e6298d,0 0 0 10px #ffcf4a,0 15px 0 10px #7f257d,0 22px 55px #2b104d99}
+.start-show__frame::before{content:'✦';position:absolute;z-index:1;top:-24px;left:-26px;color:#fff6ae;font-size:46px;text-shadow:0 0 15px #fff;animation:show-sparkle 2.4s ease-in-out infinite}
+.start-show__frame::after{content:'✧';position:absolute;z-index:1;right:-27px;bottom:-25px;color:#fff6ae;font-size:54px;text-shadow:0 0 15px #fff;animation:show-sparkle 2.8s ease-in-out infinite reverse}
+.start-show__frame img{width:100%;height:auto;max-height:45vh;object-fit:contain;border-radius:8px;background:#180d4e}
+.start-show h1{margin:1px 0 0;font-family:'Bungee','Outfit',sans-serif;font-size:clamp(38px,8vw,85px);line-height:1.1;color:#ffed66;letter-spacing:-.04em;-webkit-text-stroke:1px #a42383;text-shadow:0 4px 0 #e42682,0 8px 0 #85216f,0 12px 12px #28114b80;transform:rotate(-3deg)}
+.start-show__subtitle{margin:3px 0 0;font-size:clamp(12px,2vw,20px);font-weight:800;letter-spacing:.1em;text-transform:uppercase;text-shadow:0 2px 0 #662079}
+.start-show__skip{margin-top:4px;padding:10px 22px;border:2px solid #fff3af;border-radius:999px;background:#40218d;color:#fff;font-size:14px;font-weight:800;box-shadow:0 4px 0 #24114f;cursor:pointer}
+.start-show__skip:hover{background:#6c2aaa}.start-show__skip:focus-visible{outline:3px solid #fff;outline-offset:4px}
+.start-show__sparkles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.start-show__sparkles::before,.start-show__sparkles::after{content:'';position:absolute;left:0;right:0;height:10px;background:linear-gradient(90deg,#ff4b73,#ff993f,#ffeb62,#60dca0,#52c5f3,#b67aff,#ff68b1);box-shadow:0 0 18px #ffe09a88}
+.start-show__sparkles::before{top:0}.start-show__sparkles::after{bottom:0}
+.start-show__sparkles span{position:absolute;color:#fff9bc;font-size:clamp(25px,5vw,65px);text-shadow:0 0 14px #fff5d7;animation:show-sparkle 2.5s ease-in-out infinite}
+.start-show__sparkles span:nth-child(1){left:5%;top:15%}.start-show__sparkles span:nth-child(2){left:16%;top:60%;animation-delay:.4s}.start-show__sparkles span:nth-child(3){left:28%;top:7%;animation-delay:1s}.start-show__sparkles span:nth-child(4){left:36%;bottom:7%;animation-delay:.5s}.start-show__sparkles span:nth-child(5){right:6%;top:18%;animation-delay:1.3s}.start-show__sparkles span:nth-child(6){right:14%;bottom:20%;animation-delay:.7s}.start-show__sparkles span:nth-child(7){right:28%;top:6%;animation-delay:.9s}.start-show__sparkles span:nth-child(8){right:37%;bottom:5%;animation-delay:1.5s}
+@keyframes show-rays{to{transform:rotate(360deg)}}
+@keyframes show-arrive{from{opacity:0;transform:translateY(24px) scale(.88)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes show-sparkle{0%,100%{opacity:.55;transform:scale(.85) rotate(-12deg)}50%{opacity:1;transform:scale(1.18) rotate(12deg)}}
+@media(max-width:600px){.start-show{padding:14px}.start-show__frame{width:min(90vw,480px);padding:5px;border-width:3px}.start-show__frame img{max-height:38vh}.start-show__eyebrow{letter-spacing:.12em}.start-show h1{font-size:clamp(34px,11vw,58px)}.start-show__subtitle{font-size:11px}.start-show__sparkles span{font-size:26px}}
+body.reduced-motion .start-show *,body.reduced-motion .start-show *::before,body.reduced-motion .start-show *::after,body.reduced-motion .start-show::before{animation:none!important}
+@media(prefers-reduced-motion:reduce){.start-show *,.start-show *::before,.start-show *::after,.start-show::before{animation:none!important}}
+
 /* A bright television stage: scenery stays behind solid, readable game panels. */
 :root{
   --navy:#25206a;--navy-deep:#191347;--navy-soft:#32348e;

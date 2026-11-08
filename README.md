@@ -1,24 +1,25 @@
 # El Precio Justo · Edición aula
 
-Una página para dirigir en clase una partida por equipos, inspirada en el concurso clásico.
+A page for teachers to run a classroom game in teams, inspired by the classic TV show. Product descriptions and the guessing question remain in Spanish for language practice; instructions are in English.
 
-## Jugar
+## How to play
 
-1. Escribe los nombres de los equipos. Antes de empezar puedes revisar y editar los precios y el cambio EUR/HKD en «Productos y precios».
-2. Introduce las propuestas en euros siguiendo el orden indicado. En cada ronda empieza el siguiente equipo, y el primero de la ronda anterior pasa al final. Pulsa «Revelar el precio» para ver el resultado y la clasificación. Un campo vacío significa que el equipo no participa en esa ronda.
-3. Al resolver la quinta ronda puedes terminar la partida o añadir preguntas extra. Los extras se colocan después de los seis productos iniciales.
-4. En cualquier ronda revelada puedes corregir una propuesta: el marcador se recalcula automáticamente. Al terminar, descarga el resumen en CSV.
+1. Enter at least two different team names. Before starting, use «Productos y precios» to review or edit the prices and the EUR/HKD exchange rate.
+2. Collect guesses in euros, following the displayed turn order. A different team goes first each round: the previous first team moves to the end. Select «Revelar el precio» to reveal the price and scores. A blank field means that the team is not taking part in that round.
+3. The closest guess without going over wins one point. Tied winners share that point. Each exact guess earns one additional bonus point.
+4. You can finish after the third revealed round. From the fifth revealed round, you can add extras; these follow the six main products without repeating.
+5. You can edit guesses in any revealed round; scores update automatically. At the end, download the results as a CSV file.
 
-La partida y los precios personalizados se guardan en el almacenamiento local de ese navegador y dispositivo. El botón «Nueva partida» permite descargar primero el resultado anterior.
+The game and custom prices are saved locally in that browser and device. Reopen the page to continue. «Nueva partida» lets you download the previous results before starting again. The teacher’s operating buttons remain in Spanish.
 
-## Desarrollo
+## Development
 
-No se necesitan dependencias para la aplicación. Para abrir una vista previa local:
+The application needs no dependencies. To open a local preview:
 
 ```sh
 npm run dev
 ```
 
-Las comprobaciones de puntuación se ejecutan con `npm test` y la versión publicable se prepara con `npm run build`. Netlify utiliza `netlify.toml` para construir el directorio `dist/` automáticamente desde GitHub.
+Run the scoring checks with `npm test` and prepare the publishable version with `npm run build`. Netlify uses `netlify.toml` to build the `dist/` directory automatically from GitHub.
 
-Los precios son referencias consultadas el 6 de noviembre de 2026 y pueden modificarse en la pantalla inicial. El tipo de cambio inicial EUR/HKD procede del BCE, con fecha 5 de noviembre de 2026.
+Prices are references checked on 6 November 2026 and can be changed on the setup screen. The initial EUR/HKD exchange rate comes from the ECB, dated 5 November 2026.

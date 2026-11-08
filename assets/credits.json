@@ -54,5 +54,35 @@
     "sourceURL": "https://www.idealista.com/inmueble/112652256/",
     "imageURL": null,
     "note": "Ilustración local orientativa, no fotografía del inmueble. La página del anuncio bloquea el acceso."
+  },
+  {
+    "file": "a-jugar-still.png",
+    "sourceURL": null,
+    "imageURL": null,
+    "note": "Fotograma estático original adjuntado por el usuario; PNG, 640 × 360, un fotograma."
+  },
+  {
+    "file": "a-jugar.gif",
+    "sourceURL": "https://tenor.com/view/a-jugar-joaquin-prats-precio-justo-talking-speech-gif-17067361",
+    "imageURL": "https://media1.tenor.com/m/mGEan4nlDMwAAAAd/a-jugar-joaquin-prats.gif",
+    "note": "GIF animado original recuperado: 640 × 360, 76 fotogramas, 2530 ms. Su primer fotograma coincide píxel por píxel con el PNG adjuntado."
+  },
+  {
+    "file": "house.png",
+    "sourceURL": null,
+    "imageURL": null,
+    "note": "Fotografía original del chalet con piscina adjuntada por el usuario, 850 × 570."
+  },
+  {
+    "file": "cover.png",
+    "sourceURL": null,
+    "imageURL": null,
+    "note": "Portada original de Joaquín Prat y El Precio Justo adjuntada por el usuario, 576 × 324."
+  },
+  {
+    "file": "house-map.png",
+    "sourceURL": null,
+    "imageURL": null,
+    "note": "Mapa proporcionado por el usuario: oeste de Madrid, con Valdemorillo señalado en el extremo superior izquierdo. PNG de 1617 × 708."
   }
 ]
