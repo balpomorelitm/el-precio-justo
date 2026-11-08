@@ -6,5 +6,5 @@ await cp('assets', 'dist/assets', { recursive: true });
 const catalog = (await import('../catalog.js')).CATALOG;
 for (const product of catalog) await readFile(`dist/${product.image}`);
 for (const asset of ['a-jugar.gif', 'a-jugar-still.png', 'cover.png', 'house-map.png', 'instrucciones-ingles.png']) await readFile(`dist/assets/${asset}`);
-for (const asset of ['01_entrada_concurso_80s.wav', '02_siguiente_pregunta.wav', '03_revelar_precio.wav', '04_acierto_campanillas.wav', '05_aplausos_cortos.wav', '06_puntuacion_espectacular.wav', 'freesound_community-claps-44774.mp3']) await readFile(`dist/assets/${asset}`);
+for (const asset of ['01_entrada_concurso_80s.wav', '02_siguiente_pregunta.wav', '03_revelar_precio.wav', '04_acierto_campanillas.wav', 'driken5482-crowd-clapping-3-236779.mp3', '06_puntuacion_espectacular.wav', 'freesound_community-claps-44774.mp3']) await readFile(`dist/assets/${asset}`);
 console.log(`Web preparada: ${files.length} archivos y ${catalog.length} productos con imágenes locales.`);

@@ -80,7 +80,7 @@ const AUDIO_FILES = {
   next: ['02_siguiente_pregunta.wav', .85],
   drum: ['03_revelar_precio.wav', .85],
   exact: ['04_acierto_campanillas.wav', .85],
-  win: ['05_aplausos_cortos.wav', 2],
+  win: ['driken5482-crowd-clapping-3-236779.mp3', 2],
   finish: ['06_puntuacion_espectacular.wav', .7],
 };
 let toastTimer;
@@ -168,15 +168,19 @@ function fallbackSound(kind = 'win') {
 function playClip(filename, level, fallbackKind, cue) {
   if (cue !== audioCue || !audioArmed || !prefs.sound || !prefs.volume) return;
   let record;
+  const recover = () => {
+    if (cue !== audioCue || !prefs.sound || !prefs.volume) return;
+    // Only the entry/final crowd clip has a media fallback; that fallback ends here.
+    if (filename === 'freesound_community-claps-44774.mp3') playClip('driken5482-crowd-clapping-3-236779.mp3', 2, null, cue);
+    else if (fallbackKind) fallbackSound(fallbackKind);
+  };
   const failed = () => {
     if (!record || !activeAudio.has(record)) return;
     activeAudio.delete(record);
     record.audio.onended = null;
     record.audio.onerror = null;
     try { record.audio.pause(); } catch { /* No media was started. */ }
-    if (cue !== audioCue || !prefs.sound || !prefs.volume) return;
-    if (filename.endsWith('.mp3')) playClip('05_aplausos_cortos.wav', 2, null, cue);
-    else if (fallbackKind) fallbackSound(fallbackKind);
+    recover();
   };
   try {
     const audio = new window.Audio(`assets/${filename}`);
@@ -192,7 +196,7 @@ function playClip(filename, level, fallbackKind, cue) {
     }).catch(failed);
   } catch {
     if (record) failed();
-    else if (fallbackKind) fallbackSound(fallbackKind);
+    else recover();
   }
 }
 function sound(kind = 'win') {
