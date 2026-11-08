@@ -1,5 +1,5 @@
 /** Present the opening only after the teacher starts a new game. */
-export function showStartIntro({ reducedMotion = false } = {}) {
+export function showStartIntro({ reducedMotion = false, onClose } = {}) {
   const main = document.querySelector('main');
   const overlay = document.createElement('div');
   overlay.className = 'start-show';
@@ -26,6 +26,7 @@ export function showStartIntro({ reducedMotion = false } = {}) {
     document.removeEventListener('keydown', onKey);
     main.inert = wasInert;
     overlay.remove();
+    if (typeof onClose === 'function') onClose();
     document.querySelector('[data-bid]')?.focus();
   };
   const onKey = (event) => { if (event.key === 'Escape') close(); };

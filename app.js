@@ -66,6 +66,23 @@ if (savedPrefs && typeof savedPrefs === 'object') {
   if (Number.isFinite(savedPrefs.volume)) prefs.volume = Math.max(0, Math.min(100, savedPrefs.volume));
 }
 let audioContext;
+let audioMaster;
+let audioArmed = false;
+let audioCue = 0;
+let revealRequest = 0;
+let resolveRevealDelay;
+let pendingReveal;
+let finalAnimationFrame;
+const activeAudio = new Set();
+const activeSynths = new Set();
+const AUDIO_FILES = {
+  start: ['01_entrada_concurso_80s.wav', .7],
+  next: ['02_siguiente_pregunta.wav', .85],
+  drum: ['03_revelar_precio.wav', .85],
+  exact: ['04_acierto_campanillas.wav', .85],
+  win: ['05_aplausos_cortos.wav', 2],
+  finish: ['06_puntuacion_espectacular.wav', .7],
+};
 let toastTimer;
 function toast(message) {
   const element = $('#toast');
@@ -92,13 +109,45 @@ function syncPrefs() {
   $('#motion-toggle').title = prefs.reducedMotion ? 'Activar animaciones' : 'Reducir animaciones';
   $('#fullscreen-toggle').innerHTML = icon('fullscreen');
   $('#volume').value = prefs.volume;
+  syncAudioVolume();
+  if (prefs.reducedMotion) settleFinalCounter();
   write(KEYS.prefs, prefs);
 }
-function sound(kind = 'win') {
-  if (!prefs.sound || !prefs.volume) return;
+function armAudio() {
+  // Called from the teacher's click, submit or volume input, never on restoration.
+  audioArmed = true;
   try {
     audioContext ??= new (window.AudioContext || window.webkitAudioContext)();
-    audioContext.resume().catch(() => {});
+    if (!audioMaster) {
+      audioMaster = audioContext.createGain();
+      audioMaster.connect(audioContext.destination);
+    }
+    syncAudioVolume();
+    Promise.resolve(audioContext.resume()).catch(() => {});
+  } catch { /* HTML audio can still work if Web Audio is unavailable. */ }
+}
+function syncAudioVolume() {
+  for (const record of activeAudio) {
+    record.audio.muted = !prefs.sound;
+    record.audio.volume = Math.min(1, prefs.volume / 100 * record.level);
+  }
+  if (audioMaster) audioMaster.gain.value = prefs.sound ? prefs.volume / 100 : 0;
+  if (!prefs.sound || !prefs.volume) resolveRevealDelay?.();
+}
+function stopAllSounds() {
+  audioCue += 1;
+  for (const record of activeAudio) {
+    record.audio.onended = null;
+    record.audio.onerror = null;
+    try { record.audio.pause(); record.audio.currentTime = 0; } catch { /* Already stopped. */ }
+  }
+  activeAudio.clear();
+  for (const oscillator of activeSynths) { try { oscillator.stop(); } catch { /* Already ended. */ } }
+  activeSynths.clear();
+}
+function fallbackSound(kind = 'win') {
+  if (!audioArmed || !prefs.sound || !prefs.volume || !audioContext || !audioMaster) return;
+  try {
     const notes = kind === 'drum' ? [120, 130, 145, 160, 180, 210] : kind === 'lose' ? [180, 130] : kind === 'start' ? [392, 494, 587] : kind === 'exact' ? [523, 659, 784, 1047] : [440, 587, 740];
     notes.forEach((frequency, index) => {
       const oscillator = audioContext.createOscillator();
@@ -107,12 +156,101 @@ function sound(kind = 'win') {
       oscillator.type = kind === 'lose' || kind === 'drum' ? 'triangle' : 'sine';
       oscillator.frequency.value = frequency;
       gain.gain.setValueAtTime(0, start);
-      gain.gain.linearRampToValueAtTime(prefs.volume / 100 * .13, start + .015);
+      gain.gain.linearRampToValueAtTime(.13, start + .015);
       gain.gain.exponentialRampToValueAtTime(.001, start + .25);
-      oscillator.connect(gain); gain.connect(audioContext.destination);
+      oscillator.connect(gain); gain.connect(audioMaster);
+      activeSynths.add(oscillator);
+      oscillator.onended = () => activeSynths.delete(oscillator);
       oscillator.start(start); oscillator.stop(start + .27);
     });
   } catch { /* The game remains playable when audio is unavailable. */ }
+}
+function playClip(filename, level, fallbackKind, cue) {
+  if (cue !== audioCue || !audioArmed || !prefs.sound || !prefs.volume) return;
+  let record;
+  const failed = () => {
+    if (!record || !activeAudio.has(record)) return;
+    activeAudio.delete(record);
+    record.audio.onended = null;
+    record.audio.onerror = null;
+    try { record.audio.pause(); } catch { /* No media was started. */ }
+    if (cue !== audioCue || !prefs.sound || !prefs.volume) return;
+    if (filename.endsWith('.mp3')) playClip('05_aplausos_cortos.wav', 2, null, cue);
+    else if (fallbackKind) fallbackSound(fallbackKind);
+  };
+  try {
+    const audio = new window.Audio(`assets/${filename}`);
+    record = { audio, level };
+    audio.preload = 'auto';
+    audio.muted = !prefs.sound;
+    audio.volume = Math.min(1, prefs.volume / 100 * level);
+    activeAudio.add(record);
+    audio.onended = () => { activeAudio.delete(record); audio.onended = null; audio.onerror = null; };
+    audio.onerror = failed;
+    Promise.resolve(audio.play()).then(() => {
+      if (!activeAudio.has(record)) { try { audio.pause(); } catch { /* Cancelled while loading. */ } }
+    }).catch(failed);
+  } catch {
+    if (record) failed();
+    else if (fallbackKind) fallbackSound(fallbackKind);
+  }
+}
+function sound(kind = 'win') {
+  stopAllSounds();
+  const cue = audioCue;
+  if (!audioArmed || !prefs.sound || !prefs.volume) return () => {};
+  const clip = AUDIO_FILES[kind];
+  if (clip) playClip(clip[0], clip[1], kind, cue);
+  else fallbackSound(kind);
+  if (kind === 'start' || kind === 'finish') playClip('freesound_community-claps-44774.mp3', .5, null, cue);
+  return () => { if (audioCue === cue) stopAllSounds(); };
+}
+function waitForReveal(milliseconds) {
+  return new Promise((resolve) => {
+    const finish = () => {
+      clearTimeout(timer);
+      if (resolveRevealDelay === finish) resolveRevealDelay = null;
+      resolve();
+    };
+    const timer = setTimeout(finish, milliseconds);
+    resolveRevealDelay = finish;
+  });
+}
+function animateFinalScore() {
+  if (prefs.reducedMotion || typeof window.requestAnimationFrame !== 'function') return;
+  const element = $('.final-score');
+  const total = getStandings(game)[0].score;
+  const finalText = element.textContent;
+  const label = $('small', element).textContent;
+  element.innerHTML = `<span class="final-counter" aria-hidden="true">0</span><span class="sr-only">${esc(finalText)}</span> <small aria-hidden="true">${esc(label)}</small>`;
+  const counter = $('.final-counter', element);
+  const started = window.performance.now();
+  const tick = (now) => {
+    if (!element.isConnected) return;
+    const progress = Math.max(0, Math.min(1, (now - started) / 2600));
+    counter.textContent = score(total * (1 - (1 - progress) ** 3));
+    if (progress < 1) finalAnimationFrame = window.requestAnimationFrame(tick);
+    else { counter.textContent = score(total); finalAnimationFrame = null; }
+  };
+  finalAnimationFrame = window.requestAnimationFrame(tick);
+}
+function settleFinalCounter() {
+  if (finalAnimationFrame && window.cancelAnimationFrame) window.cancelAnimationFrame(finalAnimationFrame);
+  finalAnimationFrame = null;
+  const counter = $('.final-counter');
+  if (counter && game?.status === 'finished') counter.textContent = score(getStandings(game)[0].score);
+}
+function cancelPlayback() {
+  revealRequest += 1;
+  resolveRevealDelay?.();
+  if (pendingReveal?.button.isConnected) {
+    pendingReveal.button.disabled = false;
+    pendingReveal.button.innerHTML = pendingReveal.markup;
+    pendingReveal.button.removeAttribute('aria-busy');
+  }
+  pendingReveal = null;
+  stopAllSounds();
+  settleFinalCounter();
 }
 function celebrate() {
   if (prefs.reducedMotion) return;
@@ -207,7 +345,7 @@ function finishGame() {
   if (!captureBids()) return;
   if (game.rounds.filter((round) => round.revealed).length < 3) return;
   game.status = 'finished'; game.finishedAt = new Date().toISOString();
-  modal.close(); save(); render(); sound('exact'); celebrate(); announce('Partida terminada. Consulta la clasificación final.');
+  modal.close(); save(); render(); sound('finish'); animateFinalScore(); celebrate(); announce('Partida terminada. Consulta la clasificación final.');
 }
 function csvCell(value) {
   let text = String(value ?? '');
@@ -233,12 +371,16 @@ function exportCSV() {
 document.addEventListener('submit', (event) => {
   if (event.target.id === 'setup-form') {
     event.preventDefault();
+    armAudio();
     const values = $$('[data-team-index]', app).map((input) => input.value.trim());
     const error = $('#setup-error');
     if (values.length < 2 || values.some((name) => !name) || new Set(values.map((name) => name.toLocaleLowerCase('es'))).size !== values.length) {
       error.textContent = 'Enter at least two teams with different names. Do not leave a team name blank.'; error.hidden = false; return;
     }
-    names = values; game = createGame(names, catalog, fxRate); save(); render(); sound('start'); showStartIntro({ reducedMotion: prefs.reducedMotion }); announce('Empieza el concurso. Primera ronda.');
+    names = values; game = createGame(names, catalog, fxRate); save(); render();
+    const stopIntroSound = sound('start');
+    showStartIntro({ reducedMotion: prefs.reducedMotion, onClose: stopIntroSound });
+    announce('Empieza el concurso. Primera ronda.');
   }
   if (event.target.id === 'catalog-form') {
     event.preventDefault();
@@ -265,13 +407,14 @@ document.addEventListener('input', (event) => {
       $('#bid-error').hidden = true; save(); refreshResults();
     } catch { input.setAttribute('aria-invalid', 'true'); $('#bid-error').textContent = 'Use a positive price with up to two decimal places.'; $('#bid-error').hidden = false; }
   }
-  if (input.id === 'volume') { prefs.volume = Number(input.value); write(KEYS.prefs, prefs); }
+  if (input.id === 'volume') { prefs.volume = Number(input.value); armAudio(); syncAudioVolume(); write(KEYS.prefs, prefs); }
 });
 document.addEventListener('click', async (event) => {
   const button = event.target.closest('button');
   if (!button || button.disabled) return;
+  armAudio();
   try {
-    if (button.id === 'sound-toggle') { prefs.sound = !prefs.sound; syncPrefs(); if (prefs.sound) sound('start'); return; }
+    if (button.id === 'sound-toggle') { prefs.sound = !prefs.sound; syncPrefs(); return; }
     if (button.id === 'motion-toggle') { prefs.reducedMotion = !prefs.reducedMotion; syncPrefs(); return; }
     if (button.id === 'fullscreen-toggle') {
       if (document.fullscreenElement) await document.exitFullscreen(); else if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen(); else toast('Use your browser’s full-screen mode.'); return;
@@ -288,36 +431,42 @@ document.addEventListener('click', async (event) => {
         if (!captureBids()) break;
         const gameId = game.id;
         const roundIndex = game.currentRound;
+        const request = ++revealRequest;
+        pendingReveal = { button, markup: button.innerHTML };
         button.disabled = true;
+        button.textContent = 'Revealing…';
+        button.setAttribute('aria-busy', 'true');
         sound('drum');
-        await new Promise((resolve) => setTimeout(resolve, 650));
-        if (!game || game.id !== gameId || game.status !== 'playing' || game.currentRound !== roundIndex) break;
+        await waitForReveal(prefs.sound && prefs.volume ? 2600 : 0);
+        if (!game || game.id !== gameId || game.status !== 'playing' || game.currentRound !== roundIndex || request !== revealRequest) break;
+        pendingReveal = null;
         getRound().revealed = true;
         const result = scoreRound(getProduct().priceCents, getRound().bids);
         save(); renderGame(); sound(result.exactIds.length ? 'exact' : result.winnerIds.length ? 'win' : 'lose');
         if (result.exactIds.length) celebrate();
         announce(`${getProduct().name}: ${eur(getProduct().priceCents)}. ${resultMessage(result)}`); break;
       }
-      case 'next': if (captureBids() && getRound().revealed && game.currentRound < game.rounds.length - 1) { game.currentRound += 1; save(); renderGame(); announce(`Ronda ${game.currentRound + 1}. ${getProduct().name}.`); } break;
+      case 'next': if (captureBids() && getRound().revealed && game.currentRound < game.rounds.length - 1) { game.currentRound += 1; save(); renderGame(); sound('next'); announce(`Ronda ${game.currentRound + 1}. ${getProduct().name}.`); } break;
       case 'round': {
         if (!captureBids()) break;
         const index = Number(button.dataset.index);
         const firstPending = game.rounds.findIndex((round) => !round.revealed);
-        if (Number.isInteger(index) && index >= 0 && index < game.rounds.length && (game.rounds[index].revealed || index === firstPending)) { game.currentRound = index; save(); renderGame(); } break;
+        if (Number.isInteger(index) && index >= 0 && index < game.rounds.length && (game.rounds[index].revealed || index === firstPending)) { cancelPlayback(); game.currentRound = index; save(); renderGame(); } break;
       }
       case 'extra': if (captureBids() && game.rounds.filter((round) => round.revealed).length >= 5) { game = appendExtra(game); save(); renderGame(); toast('Extra round added at the end. The remaining products keep their turn.'); } break;
       case 'confirm-finish': if (captureBids()) openModal('¿Cerramos el concurso?', '<p>The final scores will include only the rounds you have revealed. Unplayed rounds do not earn points.</p><div class="modal-actions"><button class="button secondary" data-action="close-modal">Seguir jugando</button><button class="button primary" data-action="finish">Ver clasificación</button></div>'); break;
       case 'finish': finishGame(); break;
       case 'csv': exportCSV(); break;
-      case 'review': game.status = 'playing'; game.finishedAt = null; game.currentRound = Math.max(0, game.rounds.findLastIndex((round) => round.revealed)); save(); renderGame(); break;
+      case 'review': cancelPlayback(); game.status = 'playing'; game.finishedAt = null; game.currentRound = Math.max(0, game.rounds.findLastIndex((round) => round.revealed)); save(); renderGame(); break;
       case 'new': openModal('Una nueva partida', '<p>The current game will be removed from this browser. You can download the results before starting a new game.</p><div class="modal-actions"><button class="button secondary" data-action="close-modal">Cancelar</button>' + (game ? '<button class="button secondary" data-action="csv">Descargar CSV</button>' : '') + '<button class="button primary" data-action="reset-game">Empezar de nuevo</button></div>'); break;
-      case 'reset-game': if (game) names = game.teams.map((team) => team.name); game = null; write(KEYS.game, null); modal.close(); renderHome(); $('#save-status').textContent = 'Hecho para jugar juntos'; break;
+      case 'reset-game': cancelPlayback(); if (game) names = game.teams.map((team) => team.name); game = null; write(KEYS.game, null); modal.close(); renderHome(); $('#save-status').textContent = 'Hecho para jugar juntos'; break;
     }
   } catch (error) { toast(error.message || 'No se ha podido completar la acción.'); }
 });
 modal.addEventListener('click', (event) => { if (event.target === modal) { const box = modal.getBoundingClientRect(); if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) modal.close(); } });
 document.querySelector('.brand').addEventListener('click', (event) => { if (game) { event.preventDefault(); toast('Your game is still saved. Use «Nueva partida» to start a new one.'); } });
-window.addEventListener('beforeunload', () => { if (game) save(); });
+window.addEventListener('beforeunload', () => { cancelPlayback(); if (game) save(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) cancelPlayback(); });
 syncPrefs(); render();
 if (game) { save(); toast(game.status === 'finished' ? 'Clasificación recuperada.' : 'Partida recuperada. Seguimos donde lo dejaste.'); }
 if (invalidSavedGame) toast('El registro guardado no era compatible. Puedes empezar una nueva partida.');
